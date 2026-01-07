@@ -8,6 +8,6 @@
         "43",
         "44"
     ],
-    "url": "https://github.com/sam/night-light-toggle",
+    "url": "https://github.com/shivamksharma/gnome-shell-extension-night-light",
     "settings-schema": "org.gnome.shell.extensions.nightlighttoggle"
 }

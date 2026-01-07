@@ -1,0 +1,17 @@
+# GNOME Shell Extension build artifacts
+schemas/gschemas.compiled
+*.zip
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*~
+
+# NPM (if used in future)
+node_modules/
+package-lock.json

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="nightlighttoggle@sam">
+    <schema id="org.gnome.shell.extensions.nightlighttoggle" path="/org/gnome/shell/extensions/nightlighttoggle/">
+        
+        <!-- Whether to show the indicator in the top panel -->
+        <key name="show-indicator" type="b">
+            <default>true</default>
+            <summary>Show indicator in top bar</summary>
+            <description>Whether to show the Night Light toggle indicator in the top panel.</description>
+        </key>
+        
+        <!-- Whether to restore previous Night Light state on disable -->
+        <key name="restore-state" type="b">
+            <default>true</default>
+            <summary>Restore previous state on disable</summary>
+            <description>When enabled, the extension remembers the previous Night Light state and restores GNOME's original behavior (including schedule) when re-enabled.</description>
+        </key>
+        
+        <!-- Stored previous enabled state for restoration -->
+        <key name="previous-enabled-state" type="b">
+            <default>false</default>
+            <summary>Previous Night Light enabled state</summary>
+            <description>Internal key to store the previous Night Light enabled state for restoration.</description>
+        </key>
+        
+    </schema>
+</schemalist>

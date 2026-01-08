@@ -1,13 +1,9 @@
 {
-    "name": "Night Light Toggle",
-    "description": "Quick access to GNOME's built-in Night Light feature from the top panel. Toggle Night Light with one click and adjust color temperature without opening Settings.",
-    "uuid": "nightlighttoggle@sam",
-    "version": 1,
-    "shell-version": [
-        "42",
-        "43",
-        "44"
-    ],
-    "url": "https://github.com/shivamksharma/gnome-shell-extension-night-light",
-    "settings-schema": "org.gnome.shell.extensions.nightlighttoggle"
+  "name": "Night Light Toggle",
+  "description": "Quick access to GNOME's built-in Night Light feature from the top panel. Toggle Night Light with one click and adjust color temperature without opening Settings.",
+  "uuid": "nightlighttoggle@sam",
+  "version": 1,
+  "shell-version": ["42", "43", "44"],
+  "url": "https://github.com/shivamksharma/gnome-shell-extension-night-light",
+  "settings-schema": "org.gnome.shell.extensions.nightlighttoggle"
 }

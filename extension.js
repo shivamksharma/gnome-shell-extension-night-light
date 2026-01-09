@@ -19,6 +19,9 @@ const Me = ExtensionUtils.getCurrentExtension();
 // GSettings schema for GNOME's color settings (Night Light)
 const COLOR_SCHEMA = "org.gnome.settings-daemon.plugins.color";
 const NIGHT_LIGHT_ENABLED_KEY = "night-light-enabled";
+const NIGHT_LIGHT_SCHEDULE_AUTOMATIC_KEY = "night-light-schedule-automatic";
+const NIGHT_LIGHT_SCHEDULE_FROM_KEY = "night-light-schedule-from";
+const NIGHT_LIGHT_SCHEDULE_TO_KEY = "night-light-schedule-to";
 
 /**
  * Night Light Panel Indicator
@@ -70,7 +73,20 @@ var NightLightIndicator = GObject.registerClass(
 
     _toggle() {
       const current = this._colorSettings.get_boolean(NIGHT_LIGHT_ENABLED_KEY);
-      this._colorSettings.set_boolean(NIGHT_LIGHT_ENABLED_KEY, !current);
+      const newState = !current;
+
+      if (newState) {
+        // Turning ON: Force manual mode 00:00 -> 24:00 (Always On)
+        // This ensures the screen warms up immediately regardless of time of day
+        this._colorSettings.set_boolean(
+          NIGHT_LIGHT_SCHEDULE_AUTOMATIC_KEY,
+          false,
+        );
+        this._colorSettings.set_double(NIGHT_LIGHT_SCHEDULE_FROM_KEY, 0.0);
+        this._colorSettings.set_double(NIGHT_LIGHT_SCHEDULE_TO_KEY, 24.0);
+      }
+
+      this._colorSettings.set_boolean(NIGHT_LIGHT_ENABLED_KEY, newState);
     }
 
     _updateIcon() {
@@ -101,7 +117,7 @@ var NightLightIndicator = GObject.registerClass(
 let _indicator = null;
 let _originalSyncFunc = null;
 
-function init() {}
+function init() { }
 
 function enable() {
   _indicator = new NightLightIndicator();

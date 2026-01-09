@@ -4,9 +4,8 @@ A default GNOME Shell extension that provides quick access to GNOME's built-in N
 
 ## Features
 
-- **One-click toggle**: Enable/disable Night Light directly from the top bar
+- **Instant ON**: Acts as a manual override, forcing Night Light ON immediately regardless of time of day (disables automatic scheduling when toggled ON)
 - **Temperature Control**: Adjust color warmth without opening GNOME Settings
-- **Original State Restoration**: Optionally restore your schedule when re-enabling
 - **Native Look & Feel**: Follows GNOME Human Interface Guidelines (HIG)
 
 ## Installation
@@ -31,7 +30,7 @@ A default GNOME Shell extension that provides quick access to GNOME's built-in N
 
 ## Compatibility
 
-- GNOME Shell 45, 46, 47
+- GNOME Shell 42, 43, 44
 - Wayland and X11 compatible
 
 ## License

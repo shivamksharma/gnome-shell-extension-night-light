@@ -30,7 +30,7 @@ A default GNOME Shell extension that provides quick access to GNOME's built-in N
 
 ## Compatibility
 
-- GNOME Shell 42, 43, 44
+- GNOME Shell 45, 46, 47, 48, 49
 - Wayland and X11 compatible
 
 ## License

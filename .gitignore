@@ -11,6 +11,8 @@ Thumbs.db
 .idea/
 *.swp
 *~
+*.md
+!README.md
 
 # NPM (if used in future)
 node_modules/

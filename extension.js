@@ -1,11 +1,7 @@
-import GObject from "gi://GObject";
-import Gio from "gi://Gio";
-import St from "gi://St";
-import Clutter from "gi://Clutter";
-
-import * as Main from "resource:///org/gnome/shell/ui/main.js";
-import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
-import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
+const { Clutter, Gio, GObject, St } = imports.gi;
+const Main = imports.ui.main;
+const PanelMenu = imports.ui.panelMenu;
+const ExtensionUtils = imports.misc.extensionUtils;
 
 const COLOR_SCHEMA = "org.gnome.settings-daemon.plugins.color";
 const NIGHT_LIGHT_ENABLED_KEY = "night-light-enabled";
@@ -13,13 +9,14 @@ const NIGHT_LIGHT_SCHEDULE_AUTOMATIC_KEY = "night-light-schedule-automatic";
 const NIGHT_LIGHT_SCHEDULE_FROM_KEY = "night-light-schedule-from";
 const NIGHT_LIGHT_SCHEDULE_TO_KEY = "night-light-schedule-to";
 
+let indicator = null;
+
 const NightLightIndicator = GObject.registerClass(
   class NightLightIndicator extends PanelMenu.Button {
-    _init(extension) {
+    _init() {
       super._init(0.0, "Night Light Toggle", true);
 
-      this._extension = extension;
-      this._settings = extension.getSettings();
+      this._settings = ExtensionUtils.getSettings();
       this._colorSettings = new Gio.Settings({ schema: COLOR_SCHEMA });
 
       this._icon = new St.Icon({
@@ -32,12 +29,12 @@ const NightLightIndicator = GObject.registerClass(
 
       this._settingsSignal = this._settings.connect(
         "changed::show-indicator",
-        () => this._onShowIndicatorChanged(),
+        () => this._onShowIndicatorChanged()
       );
 
       this._colorSignal = this._colorSettings.connect(
         `changed::${NIGHT_LIGHT_ENABLED_KEY}`,
-        () => this._updateIcon(),
+        () => this._updateIcon()
       );
 
       this._onShowIndicatorChanged();
@@ -61,7 +58,7 @@ const NightLightIndicator = GObject.registerClass(
       if (newState) {
         this._colorSettings.set_boolean(
           NIGHT_LIGHT_SCHEDULE_AUTOMATIC_KEY,
-          false,
+          false
         );
         this._colorSettings.set_double(NIGHT_LIGHT_SCHEDULE_FROM_KEY, 0.0);
         this._colorSettings.set_double(NIGHT_LIGHT_SCHEDULE_TO_KEY, 24.0);
@@ -92,87 +89,89 @@ const NightLightIndicator = GObject.registerClass(
       this._colorSettings = null;
       super.destroy();
     }
-  },
+  }
 );
 
-export default class NightLightToggleExtension extends Extension {
-  enable() {
-    this._indicator = new NightLightIndicator(this);
-    Main.panel.addToStatusArea(this.metadata.uuid, this._indicator);
+function init() {
+  // Initialization if needed
+}
 
-    this._suppressBuiltinIndicator();
+function enable() {
+  indicator = new NightLightIndicator();
+  Main.panel.addToStatusArea('night-light-toggle', indicator);
+
+  _suppressBuiltinIndicator();
+}
+
+function disable() {
+  _restoreBuiltinIndicator();
+
+  if (indicator) {
+    indicator.destroy();
+    indicator = null;
   }
+}
 
-  disable() {
-    this._restoreBuiltinIndicator();
+// Helper variables for suppression logic
+let _originalSyncFunc = null;
 
-    if (this._indicator) {
-      this._indicator.destroy();
-      this._indicator = null;
-    }
-  }
+function _suppressBuiltinIndicator() {
+  try {
+    let nightLight = null;
 
-  _suppressBuiltinIndicator() {
-    try {
-      const aggregateMenu = Main.panel.statusArea.aggregateMenu;
-      let nightLight = null;
-
-      if (
-        Main.panel.statusArea.aggregateMenu &&
-        Main.panel.statusArea.aggregateMenu._nightLight
-      ) {
-        nightLight = Main.panel.statusArea.aggregateMenu._nightLight;
-      } else if (Main.panel.statusArea.quickSettings) {
-        if (Main.panel.statusArea.quickSettings._nightLight) {
-          nightLight = Main.panel.statusArea.quickSettings._nightLight;
-        }
-      }
-
-      if (nightLight) {
-        this._originalSyncFunc = nightLight._sync;
-
-        nightLight._sync = function () {
-          if (this._indicator) {
-            this._indicator.visible = false;
-          }
-        };
-
-        if (nightLight._indicator) {
-          nightLight._indicator.visible = false;
-        }
-      }
-    } catch (e) {
-      console.error(
-        `Night Light Toggle: Failed to suppress built-in indicator: ${e.message}`,
-      );
-    }
-  }
-
-  _restoreBuiltinIndicator() {
-    try {
-      let nightLight = null;
-      if (
-        Main.panel.statusArea.aggregateMenu &&
-        Main.panel.statusArea.aggregateMenu._nightLight
-      ) {
-        nightLight = Main.panel.statusArea.aggregateMenu._nightLight;
-      } else if (
-        Main.panel.statusArea.quickSettings &&
-        Main.panel.statusArea.quickSettings._nightLight
-      ) {
+    if (
+      Main.panel.statusArea.aggregateMenu &&
+      Main.panel.statusArea.aggregateMenu._nightLight
+    ) {
+      nightLight = Main.panel.statusArea.aggregateMenu._nightLight;
+    } else if (Main.panel.statusArea.quickSettings) {
+      if (Main.panel.statusArea.quickSettings._nightLight) {
         nightLight = Main.panel.statusArea.quickSettings._nightLight;
       }
-
-      if (nightLight && this._originalSyncFunc) {
-        nightLight._sync = this._originalSyncFunc;
-        this._originalSyncFunc = null;
-
-        nightLight._sync();
-      }
-    } catch (e) {
-      console.error(
-        `Night Light Toggle: Failed to restore built-in indicator: ${e.message}`,
-      );
     }
+
+    if (nightLight) {
+      _originalSyncFunc = nightLight._sync;
+
+      // Override _sync to keep the built-in indicator hidden
+      nightLight._sync = function () {
+        if (this._indicator) {
+          this._indicator.visible = false;
+        }
+      };
+
+      // Hide the built-in indicator immediately
+      if (nightLight._indicator) {
+        nightLight._indicator.visible = false;
+      }
+    }
+  } catch (e) {
+    global.logError(`Night Light Toggle: Failed to suppress built-in indicator: ${e.message}`);
+  }
+}
+
+function _restoreBuiltinIndicator() {
+  try {
+    let nightLight = null;
+    if (
+      Main.panel.statusArea.aggregateMenu &&
+      Main.panel.statusArea.aggregateMenu._nightLight
+    ) {
+      nightLight = Main.panel.statusArea.aggregateMenu._nightLight;
+    } else if (
+      Main.panel.statusArea.quickSettings &&
+      Main.panel.statusArea.quickSettings._nightLight
+    ) {
+      nightLight = Main.panel.statusArea.quickSettings._nightLight;
+    }
+
+    if (nightLight && _originalSyncFunc) {
+      nightLight._sync = _originalSyncFunc;
+      _originalSyncFunc = null;
+
+      nightLight._sync();
+    }
+  } catch (e) {
+    global.logError(`Night Light Toggle: Failed to restore built-in indicator: ${e.message}`);
   }
 }

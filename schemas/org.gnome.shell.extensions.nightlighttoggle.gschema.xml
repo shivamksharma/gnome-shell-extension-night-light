@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist gettext-domain="nightlighttoggle@sam">
+<schemalist gettext-domain="night-light-toggle@sam.shell-extensions">
     <schema id="org.gnome.shell.extensions.nightlighttoggle" path="/org/gnome/shell/extensions/nightlighttoggle/">
         
         <!-- Whether to show the indicator in the top panel -->
